@@ -37,4 +37,11 @@ class Peminjaman extends Model
     {
         return $this->belongsTo(Book::class, 'book_id', 'id');
     }
+
+
+public function pengembalian()
+{
+    return $this->hasOne(Pengembalian::class, 'peminjaman_id');
+}
+
 }

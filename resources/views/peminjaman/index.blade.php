@@ -41,7 +41,8 @@
             <div class="card h-100 shadow-sm">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ $p->book->judul ?? 'Buku Tidak Ditemukan' }}</h5>
-                    <p class="mb-1"><strong>Nama Peminjam:</strong> {{ $p->nama_lengkap ?? '-' }}</p>
+                     <p class="mb-1"><strong>ID User:</strong> {{ $p->user->id ?? '-' }}</p>
+                    <p class="mb-1"><strong>Nama User:</strong> {{ $p->nama_lengkap ?? '-' }}</p>
                     <p class="mb-1"><strong>Email:</strong> {{ $p->email ?? '-' }}</p>
                     
                     <p class="mb-2">
@@ -66,12 +67,9 @@
                         </button>
                         @endif
 
-                        @if($p->status === 'dipinjam' && (auth()->user()->role !== 'member' || $p->user_id == auth()->id()))
-                        <button type="button" class="btn btn-sm btn-success flex-fill" data-bs-toggle="modal" data-bs-target="#modalKembalikan-{{ $p->id_peminjaman }}">
-                            Kembalikan
-                        </button>
+                      
                         
-                        @endif
+                     
 
                         @if(auth()->user()->role !== 'member' && $p->status === 'rejected')
                         <button type="button" class="btn btn-sm btn-danger flex-fill" data-bs-toggle="modal" data-bs-target="#modalDelete-{{ $p->id_peminjaman }}">
@@ -107,32 +105,14 @@
             </div>
         </div>
 
-        {{-- Modal Kembalikan --}}
-        <div class="modal fade" id="modalKembalikan-{{ $p->id_peminjaman }}" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-                <form method="POST" action="{{ route('peminjaman.kembalikan', $p->id_peminjaman) }}">
-                    @csrf
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Konfirmasi Pengembalian</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            Yakin ingin mengembalikan buku <strong>{{ $p->book->judul ?? '-' }}</strong>?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">Ya, Kembalikan</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
 
         {{-- Modal Delete --}}
         <div class="modal fade" id="modalDelete-{{ $p->id_peminjaman }}" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <form method="POST" action="{{ route('peminjaman.destroy', $p->id_peminjaman) }}">
                     @csrf
+
+                    
                     @method('DELETE')
                     <div class="modal-content">
                         <div class="modal-header">

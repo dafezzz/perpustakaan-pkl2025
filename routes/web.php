@@ -5,6 +5,8 @@ use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\DendaController;
+use App\Http\Controllers\PengembalianController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root ke login
@@ -26,7 +28,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('petugas', PetugasController::class);
     });
 
-    // CRUD Books (boleh resident & petugas)
+    // CRUD Books (boleh resident & petugas & member)
     Route::middleware(['role:resident,petugas,member'])->group(function () {
         Route::resource('books', BookController::class);
     });
@@ -36,18 +38,24 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/peminjaman/{id}/kembalikan', [PeminjamanController::class, 'kembalikan'])->name('peminjaman.kembalikan');
     Route::delete('/peminjaman/{id}', [PeminjamanController::class, 'destroy'])->name('peminjaman.destroy');
 
-    // ✅ Tambahkan route konfirmasi peminjaman untuk admin/petugas
+    // ✅ Route konfirmasi peminjaman untuk admin/petugas
     Route::post('/peminjaman/{id}/konfirmasi', [PeminjamanController::class, 'konfirmasi'])
         ->middleware('role:resident,petugas')
         ->name('peminjaman.konfirmasi');
+
+    // Pengembalian (khusus admin & petugas)
+    Route::middleware(['role:resident,petugas'])->group(function () {
+        Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
+    Route::post('/pengembalian/kembali/{id}', [PengembalianController::class, 'kembali'])->name('pengembalian.kembali');
+});
 
     // Profile universal
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Clear all peminjaman (khusus admin/petugas)
+    Route::delete('/peminjaman/clear', [PeminjamanController::class, 'clearAll'])->name('peminjaman.clear');
 });
 
-Route::delete('/peminjaman/clear', [PeminjamanController::class, 'clearAll'])->name('peminjaman.clear');
-
-
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

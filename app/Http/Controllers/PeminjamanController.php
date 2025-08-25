@@ -13,18 +13,24 @@ use Carbon\Carbon;
 
 class PeminjamanController extends Controller
 {
-    public function index()
-    {
-        if (auth()->user()->role === 'member') {
-            $peminjaman = Peminjaman::with('book', 'user')
-                ->where('user_id', auth()->id())
-                ->get();
-        } else {
-            $peminjaman = Peminjaman::with('book', 'user')->get();
-        }
-
-        return view('peminjaman.index', compact('peminjaman'));
+   public function index()
+{
+    if (auth()->user()->role === 'member') {
+        // Member hanya lihat pengajuan miliknya yang masih pending/rejected
+        $peminjaman = Peminjaman::with('book', 'user')
+            ->where('user_id', auth()->id())
+            ->whereIn('status', ['pending', 'rejected'])
+            ->get();
+    } else {
+        // Admin/petugas lihat semua pengajuan pending/rejected
+        $peminjaman = Peminjaman::with('book', 'user')
+            ->whereIn('status', ['pending', 'rejected'])
+            ->get();
     }
+
+    return view('peminjaman.index', compact('peminjaman'));
+}
+
 
     public function store(Request $request)
     {
@@ -99,50 +105,47 @@ public function konfirmasi(Request $request, $id)
 }
 
 
-    public function kembalikan($id)
-    {
-        $peminjaman = Peminjaman::findOrFail($id);
-    
-        if ($peminjaman->status !== 'approved' && $peminjaman->status !== 'dipinjam') {
-            return back()->with('error', 'Status tidak valid untuk pengembalian.');
-        }
-    
-        $tanggalKembali = Carbon::now();
-        $jatuhTempo = Carbon::parse($peminjaman->tanggal_kembali);
-    
-        if ($tanggalKembali->gte($jatuhTempo)) {
-            $terlambat = $tanggalKembali->diffInDays($jatuhTempo);
-            $denda = $terlambat * 1000;
-        } else {
-            $denda = 0;
-        }
-    
-        $peminjaman->update([
-            'tanggal_kembali' => $tanggalKembali,
-            'status' => 'dikembalikan',
-        ]);
-    
-        $book = Book::find($peminjaman->book_id);
-        if ($book) {
-            $book->increment('stok');
-        }
-    
-        Pengembalian::create([
-            'peminjaman_id' => $peminjaman->id_peminjaman,
-            'tanggal_kembali' => $tanggalKembali,
-            'denda' => $denda,
-        ]);
-    
-        Log::create([
-            'user_id' => $peminjaman->user_id,
-            'book_id' => $peminjaman->book_id,
-            'peminjaman_id' => $peminjaman->id_peminjaman,
-            'keterangan' => 'Buku dikembalikan oleh ' . auth()->user()->name,
-        ]);
-    
-        return back()->with('success', 'Buku berhasil dikembalikan.');
+   public function kembalikan($id)
+{
+    $peminjaman = Peminjaman::findOrFail($id);
+
+    // Hanya peminjaman yang sedang dipinjam bisa dikembalikan
+    if (!in_array($peminjaman->status, ['approved', 'dipinjam'])) {
+        return back()->with('error', 'Status tidak valid untuk pengembalian.');
     }
-    
+
+    $tanggalKembali = Carbon::now();
+    $jatuhTempo = Carbon::parse($peminjaman->tanggal_kembali);
+
+    $denda = 0;
+    if ($tanggalKembali->gt($jatuhTempo)) {
+        $denda = $tanggalKembali->diffInDays($jatuhTempo) * 1000;
+    }
+
+    // Update status peminjaman
+    $peminjaman->update([
+        'status' => 'dikembalikan',
+        'tanggal_kembali' => $tanggalKembali,
+    ]);
+
+    // Kembalikan stok buku
+    if ($peminjaman->book) {
+        $peminjaman->book->increment('stok');
+    }
+
+    // Simpan data pengembalian
+    Pengembalian::create([
+        'peminjaman_id' => $peminjaman->id_peminjaman,
+        'tanggal_pengembalian' => $tanggalKembali,
+        'denda' => $denda,
+        'status_denda' => $denda > 0 ? 'belum' : 'lunas',
+    ]);
+
+
+
+    return back()->with('success', 'Buku berhasil dikembalikan.');
+}
+
 
     public function destroy($id)
     {

@@ -78,6 +78,15 @@
 </li>
 
 
+   <li class="nav-item {{ request()->is('pengembalian*') ? 'active' : '' }}">
+    <a class="nav-link" href="{{ route('pengembalian.index') }}">
+        <i class="fas fa-fw fa-book"></i>
+        <span>Pengembalian Buku</span>
+    </a>
+</li>
+
+
+
 
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">
