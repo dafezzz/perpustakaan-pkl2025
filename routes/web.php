@@ -5,8 +5,9 @@ use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\PeminjamanController;
-use App\Http\Controllers\DendaController;
 use App\Http\Controllers\PengembalianController;
+use App\Http\Controllers\RiwayatController;
+use App\Http\Controllers\DendaController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root ke login
@@ -46,8 +47,8 @@ Route::middleware(['auth'])->group(function () {
     // Pengembalian (khusus admin & petugas)
     Route::middleware(['role:resident,petugas'])->group(function () {
         Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
-    Route::post('/pengembalian/kembali/{id}', [PengembalianController::class, 'kembali'])->name('pengembalian.kembali');
-});
+        Route::post('/pengembalian/kembali/{id}', [PengembalianController::class, 'kembali'])->name('pengembalian.kembali');
+    });
 
     // Profile universal
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -56,6 +57,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Clear all peminjaman (khusus admin/petugas)
     Route::delete('/peminjaman/clear', [PeminjamanController::class, 'clearAll'])->name('peminjaman.clear');
+
+    // ✅ Route Riwayat (untuk semua user login)
+    Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
 });
+
+// Denda
+Route::get('/denda/bayar/{id}', [DendaController::class, 'bayar'])->name('denda.bayar');
 
 require __DIR__ . '/auth.php';

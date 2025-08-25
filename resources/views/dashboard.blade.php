@@ -58,15 +58,7 @@
 
         @if(auth()->user()->role === 'member')
             <!-- Member dapat akses peminjaman -->
-            <div class="col-md-4">
-                <a href="{{ route('peminjaman.index') }}" class="text-decoration-none">
-                    <div class="card shadow-sm border-0 text-center p-4 h-100 hover-glow rounded-4">
-                        <i class="fas fa-book-reader fa-3x text-info mb-3"></i>
-                        <h5 class="fw-semibold text-dark mb-1">Peminjaman Buku</h5>
-                        <p class="text-muted small mb-0">Lihat dan kelola peminjaman buku Anda.</p>
-                    </div>
-                </a>
-            </div>
+            
 
             <!-- Member dapat lihat daftar buku -->
             <div class="col-md-4">

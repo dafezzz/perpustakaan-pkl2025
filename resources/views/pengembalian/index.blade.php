@@ -22,7 +22,6 @@
                 </div>
             </div>
         </div>
-        
     </div>
 
     {{-- Alert --}}
@@ -52,19 +51,17 @@
     {{-- Tabel pengembalian --}}
     <div class="card">
         <div class="card-body table-responsive">
-            <table class="table table-bordered table-hover table-striped">
+            <table class="table table-bordered table-hover table-striped text-nowrap">
                 <thead class="table-dark">
                     <tr>
-                        <th>#ID Peminjaman</th>
-                        <th>ID User</th>
-                        <th>Nama User</th>
-                        <th>Email</th>
-                        <th>Judul Buku</th>
-                        <th>Tanggal Peminjaman</th>
-                        <th>Jatuh Tempo</th>
-                        
-                 
-                        <th>Aksi</th>
+                        <th style="width: 5%;">#ID Peminjaman</th>
+                        <th style="width: 5%;">ID User</th>
+                        <th style="width: 15%;">Nama User</th>
+                        <th style="width: 20%;">Email</th>
+                        <th style="width: 15%;">Judul Buku</th>
+                        <th style="width: 10%;">Tanggal Peminjaman</th>
+                        <th style="width: 10%;">Jatuh Tempo</th>
+                        <th style="width: 20%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,26 +69,53 @@
                         @php
                             $tglKembali = \Carbon\Carbon::parse($p->tanggal_kembali);
                             $tglSekarang = \Carbon\Carbon::now();
-                            $denda = $tglSekarang->gt($tglKembali) ? $tglSekarang->diffInDays($tglKembali)*2000 : 0;
+                            $denda = $tglSekarang->gt($tglKembali) ? $tglSekarang->diffInDays($tglKembali) * 2000 : 0;
                         @endphp
                         <tr>
                             <td>{{ $p->id_peminjaman }}</td>
                             <td>{{ $p->user->id }}</td>
                             <td>{{ $p->user->name }}</td>
-                            <td>{{ $p->user->email }}</td>
+                            <td style="max-width: 200px; word-break: break-word;">{{ $p->user->email }}</td>
                             <td>{{ $p->book->judul }}</td>
                             <td>{{ $p->tanggal_pinjam }}</td>
                             <td>{{ $p->tanggal_kembali }}</td>
-                           
-                                
-                            </td>
-                            
                             <td>
                                 @if(in_array(auth()->user()->role, ['resident','petugas']) && $p->status=='approved')
-                                    <form action="{{ route('pengembalian.kembali', $p->id_peminjaman) }}" method="POST" onsubmit="return confirm('Yakin ingin mengembalikan buku ini?')">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">Kembalikan</button>
-                                    </form>
+                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal{{ $p->id_peminjaman }}">
+                                        Konfirmasi
+                                    </button>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="modal{{ $p->id_peminjaman }}" tabindex="-1" aria-labelledby="modalLabel{{ $p->id_peminjaman }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalLabel{{ $p->id_peminjaman }}">Konfirmasi Pengembalian</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    @if($denda == 0)
+                                                        <p>Apakah Anda yakin ingin mengembalikan buku <strong>{{ $p->book->judul }}</strong> dari <strong>{{ $p->user->name }}</strong>?</p>
+                                                    @else
+                                                        <p>Buku <strong>{{ $p->book->judul }}</strong> dari <strong>{{ $p->user->name }}</strong> terlambat <strong>{{ $tglSekarang->diffInDays($tglKembali) }} hari</strong>.</p>
+                                                        <p>Total denda: <strong>Rp {{ number_format($denda,0,',','.') }}</strong></p>
+                                                        <p>Silakan lakukan pembayaran sebelum mengembalikan buku.</p>
+                                                    @endif
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                    @if($denda == 0)
+                                                        <form action="{{ route('pengembalian.kembali', $p->id_peminjaman) }}" method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-success">Konfirmasi Pengembalian</button>
+                                                        </form>
+                                                    @else
+                                                        <a href="{{ route('denda.bayar', $p->id_peminjaman) }}" class="btn btn-danger">Bayar Denda</a>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @else
                                     <span class="text-muted">Tidak bisa mengembalikan</span>
                                 @endif
@@ -99,7 +123,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center">Tidak ada buku siap dikembalikan</td>
+                            <td colspan="8" class="text-center">Tidak ada buku siap dikembalikan</td>
                         </tr>
                     @endforelse
                 </tbody>

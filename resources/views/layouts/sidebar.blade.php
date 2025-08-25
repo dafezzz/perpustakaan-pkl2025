@@ -69,6 +69,7 @@
 
 
 
+ @if(!auth()->user()->role || !in_array(auth()->user()->role, ['member']))
    <!-- Nav Item - Peminjaman -->
    <li class="nav-item {{ request()->is('peminjaman*') ? 'active' : '' }}">
     <a class="nav-link" href="{{ route('peminjaman.index') }}">
@@ -76,14 +77,25 @@
         <span>Pengajuan peminjaman</span>
     </a>
 </li>
+@endif
 
-
-   <li class="nav-item {{ request()->is('pengembalian*') ? 'active' : '' }}">
+ @if(!auth()->user()->role || !in_array(auth()->user()->role, ['member']))
+<li class="nav-item {{ request()->is('pengembalian*') ? 'active' : '' }}">
     <a class="nav-link" href="{{ route('pengembalian.index') }}">
         <i class="fas fa-fw fa-book"></i>
         <span>Pengembalian Buku</span>
     </a>
 </li>
+@endif
+
+
+<li class="nav-item {{ request()->is('riwayat*') ? 'active' : '' }}">
+    <a class="nav-link" href="{{ route('riwayat.index') }}">
+        <i class="fas fa-fw fa-book"></i>
+        <span>Riwayat</span>
+    </a>
+</li>
+
 
 
 
