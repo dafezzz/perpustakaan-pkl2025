@@ -5,7 +5,7 @@
 
     {{-- Judul --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">📚 Riwayat Perpustakaan</h2>
+        <h2 class="fw-bold text-dark"> Riwayat Perpustakaan</h2>
     </div>
 
     {{-- Navigasi Tab --}}
@@ -72,8 +72,8 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailPeminjaman{{ $item->id }}">
-                                            <i class="bi bi-eye"></i>
+                                         <button class="btn btn-sm btn-outline-success rounded-circle"  data-bs-toggle="modal" data-bs-target="#detailPeminjaman{{ $item->id }}">
+                                            <i class="bi bi-eye">Detail</i>
                                         </button>
                                     </td>
                                 </tr>
@@ -89,11 +89,13 @@
                                             <div class="modal-body">
                                                 <ul class="list-group list-group-flush">
                                                     <li class="list-group-item"><strong>ID User:</strong> {{ $item->user->id ?? '-' }}</li>
+                                                     <li class="list-group-item"><strong>ID Peminjaman:</strong> {{ $item->id_peminjaman ?? '-' }}</li>
                                                     <li class="list-group-item"><strong>Nama:</strong> {{ $item->user->name ?? '-' }}</li>
                                                     <li class="list-group-item"><strong>Email:</strong> {{ $item->user->email ?? '-' }}</li>
                                                     <li class="list-group-item"><strong>Buku:</strong> {{ $item->book->judul ?? '-' }}</li>
+    
                                                     <li class="list-group-item"><strong>Tanggal Pinjam:</strong> {{ \Carbon\Carbon::parse($item->tanggal_pinjam)->format('d M Y') }}</li>
-                                                    <li class="list-group-item"><strong>Tanggal Kembali:</strong> {{ $item->tanggal_kembali ? \Carbon\Carbon::parse($item->tanggal_kembali)->format('d M Y') : '-' }}</li>
+                                                    <li class="list-group-item"><strong>Jatuh Tempo:</strong> {{ $item->tanggal_kembali ? \Carbon\Carbon::parse($item->tanggal_kembali)->format('d M Y') : '-' }}</li>
                                                     <li class="list-group-item"><strong>Status:</strong> {{ ucfirst($item->status) }}</li>
                                                 </ul>
                                             </div>
@@ -129,8 +131,6 @@
                             <th style="width: 18%;">Email</th>
                             <th style="width: 20%;">Buku</th>
                             <th style="width: 15%;"> Tgl Pengembalian</th>
-                            <th style="width: 10%;">Denda</th>
-                            <th style="width: 12%;">Status Denda</th>
                             <th style="width: 7%;">Detail</th>
                         </tr>
                     </thead>
@@ -143,19 +143,14 @@
                                 <td class="text-start">{{ $item->peminjaman->user->email ?? '-' }}</td>
                                 <td class="text-start">{{ $item->peminjaman->book->judul ?? '-' }}</td>
                                 <td>{{ \Carbon\Carbon::parse($item->tanggal_pengembalian)->format('d M Y') }}</td>
-                                <td>Rp {{ number_format($item->denda, 0, ',', '.') }}</td>
-                                <td>
-                                    @if($item->status_denda == 'belum')
-                                        <span class="badge bg-danger px-3 py-2">Belum Lunas</span>
-                                    @else
-                                        <span class="badge bg-success px-3 py-2">Lunas</span>
-                                    @endif
-                                </td>
-                                <td>
+                                
+<td>
+                                                                
+                       
                                     <button class="btn btn-sm btn-outline-success rounded-circle" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#detailPengembalian{{ $item->id_pengembalian }}">
-                                        <i class="bi bi-eye"></i>
+                                        <i class="bi bi-eye">Detail</i>
                                     </button>
                                 </td>
                             </tr>
@@ -171,6 +166,8 @@
                                         <div class="modal-body">
                                             <ul class="list-group list-group-flush">
                                                 <li class="list-group-item"><strong>ID User:</strong> {{ $item->peminjaman->user->id ?? '-' }}</li>
+                                      <li class="list-group-item"><strong>ID Peminjaman:</strong> {{ $item->peminjaman->id_peminjaman ?? '-' }}</li>
+
                                                 <li class="list-group-item"><strong>Nama:</strong> {{ $item->peminjaman->user->name ?? '-' }}</li>
                                                 <li class="list-group-item"><strong>Email:</strong> {{ $item->peminjaman->user->email ?? '-' }}</li>
                                                 <li class="list-group-item"><strong>Buku:</strong> {{ $item->peminjaman->book->judul ?? '-' }}</li>
@@ -213,7 +210,7 @@
                     <table class="table table-hover align-middle text-center mb-0" id="tableDenda">
                         <thead class="table-light">
                             <tr>
-                                <th>No</th>
+                             
                                 <th>ID User</th>
                                 <th>Nama</th>
                                 <th>Email</th>
@@ -226,9 +223,7 @@
                         </thead>
                         <tbody>
                             @forelse ($denda as $i => $item)
-                                <tr>
-                                    <td>{{ $i+1 }}</td>
-                                    <td>{{ $item->peminjaman->user->id ?? '-' }}</td>
+                                <tr>    <td>{{ $item->peminjaman->user->id ?? '-' }}</td>
                                     <td>{{ $item->peminjaman->user->name ?? '-' }}</td>
                                     <td>{{ $item->peminjaman->user->email ?? '-' }}</td>
                                     <td>{{ $item->peminjaman->book->judul ?? '-' }}</td>
@@ -242,8 +237,9 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#detailDenda{{ $item->id }}">
-                                            <i class="bi bi-eye"></i>
+                                        
+                                        <button class="btn btn-sm btn-outline-success rounded-circle"  data-bs-toggle="modal" data-bs-target="#detailDenda{{ $item->id }}">
+                                            <i class="bi bi-eye">Detail</i>
                                         </button>
                                     </td>
                                 </tr>
@@ -259,12 +255,14 @@
                                             <div class="modal-body">
                                                 <ul class="list-group list-group-flush">
                                                     <li class="list-group-item"><strong>ID User:</strong> {{ $item->peminjaman->user->id ?? '-' }}</li>
+                                                <li class="list-group-item"><strong>ID Peminjaman:</strong> {{ $item->peminjaman->id_peminjaman ?? '-' }}</li>
+
                                                     <li class="list-group-item"><strong>Nama:</strong> {{ $item->peminjaman->user->name ?? '-' }}</li>
                                                     <li class="list-group-item"><strong>Email:</strong> {{ $item->peminjaman->user->email ?? '-' }}</li>
                                                     <li class="list-group-item"><strong>Buku:</strong> {{ $item->peminjaman->book->judul ?? '-' }}</li>
                                                     <li class="list-group-item"><strong>Tanggal Pengembalian:</strong> {{ \Carbon\Carbon::parse($item->tanggal_pengembalian)->format('d M Y') }}</li>
                                                     <li class="list-group-item"><strong>Denda:</strong> Rp {{ number_format($item->denda, 0, ',', '.') }}</li>
-                                                    <li class="list-group-item"><strong>Status:</strong> {{ ucfirst($item->status_denda) }}</li>
+
                                                 </ul>
                                             </div>
                                         </div>

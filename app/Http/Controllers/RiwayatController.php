@@ -20,6 +20,9 @@ class RiwayatController extends Controller
                 ->get();
 
             $pengembalian = Pengembalian::with(['peminjaman.book', 'peminjaman.user'])
+                ->whereHas('peminjaman', function ($q) {
+                    $q->where('status', 'dikembalikan'); // filter hanya yang sudah dikembalikan
+                })
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else {
@@ -31,7 +34,8 @@ class RiwayatController extends Controller
 
             $pengembalian = Pengembalian::with(['peminjaman.book'])
                 ->whereHas('peminjaman', function ($q) use ($user) {
-                    $q->where('user_id', $user->id);
+                    $q->where('user_id', $user->id)
+                      ->where('status', 'dikembalikan'); // filter hanya yang sudah dikembalikan
                 })
                 ->orderBy('created_at', 'desc')
                 ->get();
