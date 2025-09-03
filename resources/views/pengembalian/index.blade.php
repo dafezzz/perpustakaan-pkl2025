@@ -52,7 +52,7 @@
     <div class="card">
         <div class="card-body table-responsive">
             <table class="table table-bordered table-hover table-striped text-nowrap">
-                <thead class="table-dark">
+                <thead class="table-primary">
                     <tr>
                         <th style="width: 5%;">#ID Peminjaman</th>
                         <th style="width: 5%;">ID User</th>

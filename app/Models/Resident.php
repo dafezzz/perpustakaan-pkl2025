@@ -15,6 +15,7 @@ class Resident extends Authenticatable
         'name',
         'email',
         'password',
+        'cover',
     ];
 
     protected $hidden = [

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\Rak;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
@@ -12,7 +13,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::all();
+        $books = Book::with('rak')->get(); // ambil relasi rak juga
         return view('books.index', compact('books'));
     }
 
@@ -22,7 +23,8 @@ class BookController extends Controller
     public function create()
     {
         $categories = Book::select('kategori')->distinct()->pluck('kategori');
-        return view('books.create', compact('categories'));
+        $raks = Rak::all();
+        return view('books.create', compact('categories', 'raks'));
     }
 
     /**
@@ -37,9 +39,8 @@ class BookController extends Controller
             'penerbit' => 'required|string|max:100',
             'tahun_terbit' => 'required|integer',
             'pengarang' => 'required|string|max:100',
+            'rak_id' => 'nullable|exists:raks,id',
             'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            
-            
         ]);
 
         if ($request->hasFile('cover')) {
@@ -59,7 +60,8 @@ class BookController extends Controller
     public function edit(Book $book)
     {
         $categories = Book::select('kategori')->distinct()->pluck('kategori');
-        return view('books.edit', compact('book', 'categories'));
+        $raks = Rak::all();
+        return view('books.edit', compact('book', 'categories', 'raks'));
     }
 
     /**
@@ -74,8 +76,8 @@ class BookController extends Controller
             'penerbit' => 'required|string|max:100',
             'tahun_terbit' => 'required|integer',
             'pengarang' => 'required|string|max:100',
+            'rak_id' => 'nullable|exists:raks,id',
             'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            
         ]);
 
         if ($request->hasFile('cover')) {

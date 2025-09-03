@@ -110,6 +110,29 @@
                         >
                     </div>
 
+
+                    {{-- Rak --}}
+<div class="form-group mb-3">
+    <label for="rak_id">Lokasi Rak</label>
+    <select 
+        name="rak_id" 
+        id="rak_id" 
+        class="form-control"
+    >
+        <option value="">-- Pilih Rak --</option>
+        @foreach ($raks as $rak)
+            <option value="{{ $rak->id }}" 
+                {{ old('rak_id', $book->rak_id) == $rak->id ? 'selected' : '' }}>
+                {{ $rak->kode_rak }} - {{ $rak->nama_rak }}
+            </option>
+        @endforeach
+    </select>
+</div>
+
+
+
+                    
+
                     {{-- Cover Buku --}}
                     <div class="form-group mb-3">
                         <label for="cover">Cover Buku (Opsional)</label>

@@ -59,7 +59,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2025 PKL</span>
+                        <span>Copyright &copy; Daveiz Website 2025 PKL</span>
                     </div>
                 </div>
             </footer>

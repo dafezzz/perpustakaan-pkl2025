@@ -8,6 +8,7 @@ use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\DendaController;
+use App\Http\Controllers\RakController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root ke login
@@ -64,5 +65,18 @@ Route::middleware(['auth'])->group(function () {
 
 // Denda
 Route::get('/denda/bayar/{id}', [DendaController::class, 'bayar'])->name('denda.bayar');
+
+Route::resource('rak', RakController::class)->middleware('auth');
+
+
+use App\Http\Controllers\ContactController;
+
+Route::get('/contact', function () {
+    return view('dashboard'); // atau blade kontak kamu
+})->name('contact.page');
+
+Route::post('/contact/send', [ContactController::class, 'send'])->name('contact.send');
+
+
 
 require __DIR__ . '/auth.php';

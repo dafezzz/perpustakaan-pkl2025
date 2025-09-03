@@ -70,7 +70,19 @@
                             </p>
                             <p class="mb-1"><strong>Penerbit:</strong> {{ $book->penerbit }}</p>
                             <p class="mb-1"><strong>Tahun:</strong> {{ $book->tahun_terbit }}</p>
-                            <p class="mb-2"><strong>Pengarang:</strong> {{ $book->pengarang }}</p>
+                            <p class="mb-1"><strong>Pengarang:</strong> {{ $book->pengarang }}</p>
+
+               {{-- Lokasi Rak --}}
+@if($book->rak)
+    <div class="border-top mt-2 pt-2">
+        <p class="mb-1">
+            <strong>Lokasi Rak:</strong> 
+            {{ $book->rak->kode_rak }} - {{ $book->rak->nama_rak }}
+        </p>
+    </div>
+@else
+    <p class="text-muted small mt-2"><em>Belum ada rak</em></p>
+@endif
 
                             <div class="mt-auto d-flex justify-content-between">
                                 @if(auth()->user()->role !== 'member')
@@ -115,41 +127,37 @@
                     </div>
                 </div>
                 @endif
+
                 {{-- Modal Ajukan Peminjaman --}}
-<div class="modal fade" id="modalAjukan-{{ $book->id }}">
-    <div class="modal-dialog">
-        <form action="{{ route('peminjaman.store') }}" method="POST" class="modal-content">
-            @csrf
-            <input type="hidden" name="book_id" value="{{ $book->id }}">
-            <input type="hidden" name="nama_lengkap" value="{{ auth()->user()->name }}">
-            <input type="hidden" name="email" value="{{ auth()->user()->email }}">
-           
+                <div class="modal fade" id="modalAjukan-{{ $book->id }}">
+                    <div class="modal-dialog">
+                        <form action="{{ route('peminjaman.store') }}" method="POST" class="modal-content">
+                            @csrf
+                            <input type="hidden" name="book_id" value="{{ $book->id }}">
+                            <input type="hidden" name="nama_lengkap" value="{{ auth()->user()->name }}">
+                            <input type="hidden" name="email" value="{{ auth()->user()->email }}">
 
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Konfirmasi Pengajuan Peminjaman</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Apakah Anda yakin ingin mengajukan peminjaman buku berikut?</p>
-                <ul>
-                    <li><strong>Judul:</strong> {{ $book->judul }}</li>
-                    <li><strong>Nama:</strong> {{ auth()->user()->name }}</li>
-                    <li><strong>Email:</strong> {{ auth()->user()->email }}</li>
-                 
-                </ul>
-            </div>
-            
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary btn-sm">Ajukan</button>
-            </div>
-        </form>
-    </div>
-</div>
-{{-- End Modal Ajukan Peminjaman --}}
-
-
-
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">Konfirmasi Pengajuan Peminjaman</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Apakah Anda yakin ingin mengajukan peminjaman buku berikut?</p>
+                                <ul>
+                                    <li><strong>Judul:</strong> {{ $book->judul }}</li>
+                                    <li><strong>Nama:</strong> {{ auth()->user()->name }}</li>
+                                    <li><strong>Email:</strong> {{ auth()->user()->email }}</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-primary btn-sm">Ajukan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {{-- End Modal Ajukan Peminjaman --}}
             @endforeach
         </div>
     @else
