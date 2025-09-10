@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Book;
+use App\Models\Pengembalian;
 
 class Peminjaman extends Model
 {
@@ -26,6 +27,14 @@ class Peminjaman extends Model
         'status',
     ];
 
+    // ✅ casting tanggal otomatis jadi Carbon instance
+    protected $casts = [
+        'tanggal_pinjam'   => 'datetime',
+        'tanggal_kembali'  => 'datetime',
+        'created_at'       => 'datetime',
+        'updated_at'       => 'datetime',
+    ];
+
     // Relasi ke User
     public function user()
     {
@@ -38,10 +47,9 @@ class Peminjaman extends Model
         return $this->belongsTo(Book::class, 'book_id', 'id');
     }
 
-
-public function pengembalian()
-{
-    return $this->hasOne(Pengembalian::class, 'peminjaman_id');
-}
-
+    // Relasi ke Pengembalian
+    public function pengembalian()
+    {
+        return $this->hasOne(Pengembalian::class, 'peminjaman_id');
+    }
 }

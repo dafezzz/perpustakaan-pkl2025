@@ -3,7 +3,7 @@
 @section('content')
 <div class="container py-4">
 
-    <!-- Hero Header dengan Parallax -->
+    <!-- Hero Header -->
     <div class="hero-header position-relative overflow-hidden mb-5">
         <div class="row align-items-center">
             <div class="col-md-6">
@@ -18,12 +18,10 @@
         </div>
     </div>
 
-
     <!-- Dashboard Menu -->
-    <!-- Ganti Dashboard Menu dengan Hero Card/Highlight -->
     <div class="row g-4 mb-5">
         <div class="col-md-6">
-            <div class="card shadow-sm border-0 p-4 h-100 hover-shadow bg-primary text-white rounded-4">
+            <div class="card shadow-sm border-0 p-4 h-100 hover-shadow bg-gradient-blue text-white rounded-4">
                 <h4 class="fw-bold">Buku Populer Minggu Ini</h4>
                 <p class="mb-0">Lihat koleksi buku yang paling banyak dibaca minggu ini. Temukan rekomendasi bacaanmu!</p>
                 <div class="mt-3">
@@ -32,7 +30,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card shadow-sm border-0 p-4 h-100 hover-shadow bg-primary text-white rounded-4">
+            <div class="card shadow-sm border-0 p-4 h-100 hover-shadow bg-gradient-blue text-white rounded-4">
                 <h4 class="fw-bold">Motivasi Membaca</h4>
                 <p class="mb-0">“Membaca adalah jendela dunia.” Jangan lewatkan tips dan motivasi untuk menambah koleksi bacaanmu setiap hari.</p>
                 <div class="mt-3">
@@ -41,6 +39,97 @@
             </div>
         </div>
     </div>
+
+    <!-- Realtime Peminjaman -->
+    <section class="realtime-section mb-5">
+        <h2 class="fw-bold mb-4 text-center">📊 Realtime Peminjaman</h2>
+        <div class="row g-4 mb-4">
+
+            <!-- Hari Ini -->
+            <div class="col-md-4">
+                <div class="stat-card bg-gradient-blue text-white rounded-4 shadow-sm p-3 h-100">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-calendar-day fa-lg me-2"></i>
+                        <h6 class="fw-semibold mb-0">Hari Ini</h6>
+                    </div>
+
+                    @if(isset($todayLoanDetails) && $todayLoanDetails->count() > 0)
+                        <ul class="list-unstyled text-start small mb-3">
+                            @foreach($todayLoanDetails->take(3) as $loan)
+                                <li class="mb-2">
+                                    <strong>{{ $loan->user->name }}</strong> →  
+                                    <em>"{{ $loan->book->title }}"</em>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-white-50 small">Belum ada peminjaman.</p>
+                    @endif
+
+                    <div class="text-center border-top border-light pt-2">
+                        <span class="fw-bold fs-5">{{ $todayLoans ?? 0 }}</span><br>
+                        <small>Total</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Minggu Ini -->
+            <div class="col-md-4">
+                <div class="stat-card bg-gradient-blue text-white rounded-4 shadow-sm p-3 h-100">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-calendar-week fa-lg me-2"></i>
+                        <h6 class="fw-semibold mb-0">Minggu Ini</h6>
+                    </div>
+
+                    @if(isset($weekLoanDetails) && $weekLoanDetails->count() > 0)
+                        <ul class="list-unstyled text-start small mb-3">
+                            @foreach($weekLoanDetails->take(3) as $loan)
+                                <li class="mb-2">
+                                    <strong>{{ $loan->user->name }}</strong> →  
+                                    <em>"{{ $loan->book->title }}"</em>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-white-50 small">Belum ada peminjaman.</p>
+                    @endif
+
+                    <div class="text-center border-top border-light pt-2">
+                        <span class="fw-bold fs-5">{{ $weekLoans ?? 0 }}</span><br>
+                        <small>Total</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulan Ini -->
+            <div class="col-md-4">
+                <div class="stat-card bg-gradient-blue text-white rounded-4 shadow-sm p-3 h-100">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-calendar-alt fa-lg me-2"></i>
+                        <h6 class="fw-semibold mb-0">Bulan Ini</h6>
+                    </div>
+
+                    @if(isset($monthLoanDetails) && $monthLoanDetails->count() > 0)
+                        <ul class="list-unstyled text-start small mb-3">
+                            @foreach($monthLoanDetails->take(3) as $loan)
+                                <li class="mb-2">
+                                    <strong>{{ $loan->user->name }}</strong> →  
+                                    <em>"{{ $loan->book->title }}"</em>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-white-50 small">Belum ada peminjaman.</p>
+                    @endif
+
+                    <div class="text-center border-top border-light pt-2">
+                        <span class="fw-bold fs-5">{{ $monthLoans ?? 0 }}</span><br>
+                        <small>Total</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Kontak Kami Section -->
     <section class="contact-section py-5">
@@ -83,16 +172,15 @@
                     </div>
 
                     <div class="map mt-4">
-    <iframe 
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.123456789!2d107.6440!3d-6.9180!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e8f123456789%3A0xabcdef123456789!2sJalan%20Lebak%2C%20Kiaracondong%2C%20Bandung!5e0!3m2!1sen!2sid!4v1690000000000!5m2!1sen!2sid" 
-        width="100%" 
-        height="250" 
-        style="border:0; border-radius:12px;" 
-        allowfullscreen="" 
-        loading="lazy">
-    </iframe>
-</div>
-
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.123456789!2d107.6440!3d-6.9180!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e8f123456789%3A0xabcdef123456789!2sJalan%20Lebak%2C%20Kiaracondong%2C%20Bandung!5e0!3m2!1sen!2sid!4v1690000000000!5m2!1sen!2sid" 
+                            width="100%" 
+                            height="250" 
+                            style="border:0; border-radius:12px;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                        </iframe>
+                    </div>
                 </div>
             </div>
         </div>
@@ -102,63 +190,33 @@
 
 <style>
 /* Hover effect card */
-.hover-shadow { 
-    transition: transform 0.2s, box-shadow 0.2s; 
-}
-.hover-shadow:hover { 
-    transform: translateY(-3px); 
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1); 
-}
+.hover-shadow { transition: transform 0.2s, box-shadow 0.2s; }
+.hover-shadow:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
 
-/* Card images tetap kotak kecil */
-.card img { 
-    border-radius: 0.5rem; 
-    object-fit: cover; 
-    height: 200px; 
-}
+/* Statistik card */
+.stat-card { transition: transform 0.2s, box-shadow 0.2s; }
+.stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+
+/* Gradient seragam biru */
+.bg-gradient-blue { background: linear-gradient(135deg, #4e73df, #224abe); }
 
 /* Hero header & image */
-.hero-header {
-    background: #f8f9fa;
-    padding: 50px 0;
-    overflow: visible; /* biar gambar hero bisa sedikit keluar container */
-}
-
-.hero-image-wrapper {
-    position: relative;
-    overflow: visible;
-}
-
-.hero-img {
-    width: 100%;
-    max-width: 500px;
-    border-radius: 50% 10% 50% 10%; /* bentuk organik */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    opacity: 0.95; /* menyatu dengan background */
-    transition: transform 0.2s, opacity 0.3s;
-}
-
-.hero-img:hover {
-    transform: scale(1.02);
-    opacity: 1;
-}
+.hero-header { background: #f8f9fa; padding: 50px 0; }
+.hero-img { width: 100%; max-width: 500px; border-radius: 50% 10% 50% 10%; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 
 /* Kontak Section */
 .contact-section { background:#f1f5f9; }
-.contact-section h2 { font-size:2.5rem; }
 .contact-form input, .contact-form textarea { border-radius:12px; }
-.contact-info p { font-size:1rem; margin-bottom:0.5rem; }
-.contact-info h5 { font-size:1.1rem; }
 .contact-info i { color:#4e73df; }
 
+/* Realtime section */
+.realtime-section h2 { font-size:2rem; }
+
 /* Parallax effect */
-.parallax-img {
-    transition: transform 0.2s;
-}
+.parallax-img { transition: transform 0.2s; }
 </style>
 
 <script>
-// Simple parallax scroll effect
 window.addEventListener('scroll', function() {
     const img = document.querySelector('.parallax-img');
     if(img){

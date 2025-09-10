@@ -9,6 +9,8 @@ use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\DendaController;
 use App\Http\Controllers\RakController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root ke login
@@ -19,10 +21,8 @@ Route::get('/', function () {
 // Group memerlukan login
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboard
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    // ✅ Dashboard lewat controller
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // CRUD Resident dan Petugas (khusus role resident/admin)
     Route::middleware(['role:resident'])->group(function () {
@@ -66,17 +66,15 @@ Route::middleware(['auth'])->group(function () {
 // Denda
 Route::get('/denda/bayar/{id}', [DendaController::class, 'bayar'])->name('denda.bayar');
 
+// Rak (khusus user login)
 Route::resource('rak', RakController::class)->middleware('auth');
 
-
-use App\Http\Controllers\ContactController;
-
+// Contact
 Route::get('/contact', function () {
-    return view('dashboard'); // atau blade kontak kamu
+    return view('contact'); // ganti sesuai blade contact kamu
 })->name('contact.page');
 
 Route::post('/contact/send', [ContactController::class, 'send'])->name('contact.send');
 
-
-
+// Auth routes
 require __DIR__ . '/auth.php';
