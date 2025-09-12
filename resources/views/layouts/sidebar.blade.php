@@ -63,8 +63,11 @@
             <span>Daftar Buku</span>
         </a>
     </li>
-
+    
     @if(!auth()->user()->role || !in_array(auth()->user()->role, ['member']))
+  <div class="sidebar-heading text-uppercase fw-bold text-light small">
+        Sirkulasi Buku
+    </div>
         <li class="nav-item {{ request()->is('peminjaman*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('peminjaman.index') }}">
                 <i class="fas fa-fw fa-book-reader"></i>
@@ -78,16 +81,19 @@
                 <span>Pengembalian Buku</span>
             </a>
         </li>
-
+<div class="sidebar-heading text-uppercase fw-bold text-light small">
+        Rak & Kategori
+    </div>
           <li class="nav-item {{ request()->is('rak*') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('rak.index') }}">
-                <i class="fas fa-fw fa-undo-alt"></i>
-                <span>Rak Buku</span>
-            </a>
-        </li>
+    <a class="nav-link" href="{{ route('rak.index') }}">
+        <i class="fas fa-fw fa-layer-group"></i>
+        <span>Rak Buku</span>
+    </a>
+</li>
+
     @endif
 <div class="sidebar-heading text-uppercase fw-bold text-light small">
-            Logs
+            Riwayat Aktivitas
         </div>
     <li class="nav-item {{ request()->is('riwayat*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('riwayat.index') }}">

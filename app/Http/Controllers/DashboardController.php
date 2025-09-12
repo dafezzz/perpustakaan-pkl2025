@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Peminjaman; // pastikan model Peminjaman ada dan relasi sudah dibuat
+use App\Models\Peminjaman;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -53,6 +53,21 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
+      // 📊 Statistik Peminjaman 1 Tahun (Januari - Desember)
+$months = [];
+$peminjamanData = [];
+
+for ($m = 1; $m <= 12; $m++) {
+    $months[] = Carbon::createFromDate(null, $m, 1)->format('M'); // Jan, Feb, ...
+    
+    $count = Peminjaman::whereYear('tanggal_pinjam', Carbon::now()->year)
+        ->whereMonth('tanggal_pinjam', $m)
+        ->count();
+        
+    $peminjamanData[] = $count;
+}
+
+
         return view('dashboard', compact(
             'totalResidents',
             'totalPetugas',
@@ -63,7 +78,9 @@ class DashboardController extends Controller
             'todayLoanDetails',
             'weekLoanDetails',
             'monthLoanDetails',
-            'latestLoans'
+            'latestLoans',
+            'months',
+            'peminjamanData'
         ));
     }
 }

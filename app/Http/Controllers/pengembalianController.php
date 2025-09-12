@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
 use App\Models\Pengembalian;
+use App\Helpers\ActivityLogger; // <-- import helper
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -46,22 +47,28 @@ class PengembalianController extends Controller
         // ✅ Cek dulu apakah sudah ada record pengembalian
         $cek = Pengembalian::where('peminjaman_id', $peminjaman->id)->first();
         if (!$cek) {
-            // kalau belum ada → buat baru
-            Pengembalian::create([
+            $pengembalian = Pengembalian::create([
                 'peminjaman_id'        => $peminjaman->id,
                 'tanggal_pengembalian' => $tgl_sekarang,
                 'denda'                => $denda,
             ]);
         } else {
-            // kalau sudah ada → update denda biar gak dobel record
             $cek->update([
                 'tanggal_pengembalian' => $tgl_sekarang,
                 'denda'                => $denda,
             ]);
+            $pengembalian = $cek;
         }
 
         // ✅ Selalu update status peminjaman jadi "dikembalikan"
         $peminjaman->update(['status' => 'dikembalikan']);
+
+        // --- Tambahkan Activity Log ---
+        ActivityLogger::log(
+            'Kembalikan Buku',
+            $pengembalian,
+            'Buku: ' . $peminjaman->book->judul . ', Denda: ' . $denda
+        );
 
         return redirect()->route('pengembalian.index')
             ->with('success', 'Buku berhasil dikembalikan.');
@@ -97,6 +104,13 @@ class PengembalianController extends Controller
 
         // Bayar denda: anggap langsung lunas dengan menghapus nominal denda
         $pengembalian->update(['denda' => 0]);
+
+        // --- Tambahkan Activity Log ---
+        ActivityLogger::log(
+            'Bayar Denda',
+            $pengembalian,
+            'Buku: ' . $pengembalian->peminjaman->book->judul . ', Denda lunas'
+        );
 
         return redirect()->back()->with('success', 'Denda berhasil dibayar.');
     }

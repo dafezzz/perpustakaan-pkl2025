@@ -40,96 +40,19 @@
         </div>
     </div>
 
-    <!-- Realtime Peminjaman -->
-    <section class="realtime-section mb-5">
-        <h2 class="fw-bold mb-4 text-center">📊 Realtime Peminjaman</h2>
-        <div class="row g-4 mb-4">
+    <!-- Statistik Tahunan -->
+    
+  @unless(auth()->user()->role === 'member')
+<section class="realtime-section mb-5">
+    <h2 class="fw-bold mb-4 text-center">📊 Grafik Peminjaman</h2>
 
-            <!-- Hari Ini -->
-            <div class="col-md-4">
-                <div class="stat-card bg-gradient-blue text-white rounded-4 shadow-sm p-3 h-100">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-calendar-day fa-lg me-2"></i>
-                        <h6 class="fw-semibold mb-0">Hari Ini</h6>
-                    </div>
+    <div class="card shadow-sm border-0 rounded-4 p-4">
+        <canvas id="myChart"></canvas>
 
-                    @if(isset($todayLoanDetails) && $todayLoanDetails->count() > 0)
-                        <ul class="list-unstyled text-start small mb-3">
-                            @foreach($todayLoanDetails->take(3) as $loan)
-                                <li class="mb-2">
-                                    <strong>{{ $loan->user->name }}</strong> →  
-                                    <em>"{{ $loan->book->title }}"</em>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <p class="text-white-50 small">Belum ada peminjaman.</p>
-                    @endif
-
-                    <div class="text-center border-top border-light pt-2">
-                        <span class="fw-bold fs-5">{{ $todayLoans ?? 0 }}</span><br>
-                        <small>Total</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Minggu Ini -->
-            <div class="col-md-4">
-                <div class="stat-card bg-gradient-blue text-white rounded-4 shadow-sm p-3 h-100">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-calendar-week fa-lg me-2"></i>
-                        <h6 class="fw-semibold mb-0">Minggu Ini</h6>
-                    </div>
-
-                    @if(isset($weekLoanDetails) && $weekLoanDetails->count() > 0)
-                        <ul class="list-unstyled text-start small mb-3">
-                            @foreach($weekLoanDetails->take(3) as $loan)
-                                <li class="mb-2">
-                                    <strong>{{ $loan->user->name }}</strong> →  
-                                    <em>"{{ $loan->book->title }}"</em>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <p class="text-white-50 small">Belum ada peminjaman.</p>
-                    @endif
-
-                    <div class="text-center border-top border-light pt-2">
-                        <span class="fw-bold fs-5">{{ $weekLoans ?? 0 }}</span><br>
-                        <small>Total</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bulan Ini -->
-            <div class="col-md-4">
-                <div class="stat-card bg-gradient-blue text-white rounded-4 shadow-sm p-3 h-100">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-calendar-alt fa-lg me-2"></i>
-                        <h6 class="fw-semibold mb-0">Bulan Ini</h6>
-                    </div>
-
-                    @if(isset($monthLoanDetails) && $monthLoanDetails->count() > 0)
-                        <ul class="list-unstyled text-start small mb-3">
-                            @foreach($monthLoanDetails->take(3) as $loan)
-                                <li class="mb-2">
-                                    <strong>{{ $loan->user->name }}</strong> →  
-                                    <em>"{{ $loan->book->title }}"</em>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <p class="text-white-50 small">Belum ada peminjaman.</p>
-                    @endif
-
-                    <div class="text-center border-top border-light pt-2">
-                        <span class="fw-bold fs-5">{{ $monthLoans ?? 0 }}</span><br>
-                        <small>Total</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+       
+    </div>
+</section>
+@endunless
 
     <!-- Kontak Kami Section -->
     <section class="contact-section py-5">
@@ -189,31 +112,24 @@
 </div>
 
 <style>
-/* Hover effect card */
 .hover-shadow { transition: transform 0.2s, box-shadow 0.2s; }
 .hover-shadow:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
 
-/* Statistik card */
-.stat-card { transition: transform 0.2s, box-shadow 0.2s; }
-.stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-
-/* Gradient seragam biru */
 .bg-gradient-blue { background: linear-gradient(135deg, #4e73df, #224abe); }
-
-/* Hero header & image */
 .hero-header { background: #f8f9fa; padding: 50px 0; }
 .hero-img { width: 100%; max-width: 500px; border-radius: 50% 10% 50% 10%; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 
-/* Kontak Section */
 .contact-section { background:#f1f5f9; }
 .contact-form input, .contact-form textarea { border-radius:12px; }
 .contact-info i { color:#4e73df; }
 
-/* Realtime section */
 .realtime-section h2 { font-size:2rem; }
 
-/* Parallax effect */
 .parallax-img { transition: transform 0.2s; }
+
+.table-hover tbody tr:hover { background-color: #f1f5ff; }
+
+.bg-gradient-blue { color: #fff; font-weight: bold; }
 </style>
 
 <script>
@@ -222,6 +138,36 @@ window.addEventListener('scroll', function() {
     if(img){
         const offset = window.pageYOffset;
         img.style.transform = 'translateY(' + offset * 0.2 + 'px)';
+    }
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('myChart');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: @json($months),
+        datasets: [{
+            label: 'Peminjaman 2025',
+            data: @json($peminjamanData),
+            backgroundColor: 'rgba(78, 115, 223, 0.7)',
+            borderColor: 'rgba(78, 115, 223, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision:0
+                }
+            }
+        }
     }
 });
 </script>

@@ -76,5 +76,14 @@ Route::get('/contact', function () {
 
 Route::post('/contact/send', [ContactController::class, 'send'])->name('contact.send');
 
+use App\Http\Controllers\ActivityLogController;
+
+Route::get('/activity-logs', [ActivityLogController::class, 'index'])
+    ->middleware('auth')
+    ->name('activity.logs');
+
+
+
 // Auth routes
 require __DIR__ . '/auth.php';
+

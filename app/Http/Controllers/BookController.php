@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Rak;
+use App\Helpers\ActivityLogger; // <-- import helper
 use Illuminate\Http\Request;
 
 class BookController extends Controller
@@ -49,7 +50,14 @@ class BookController extends Controller
             $validated['cover'] = $coverName;
         }
 
-        Book::create($validated);
+        $book = Book::create($validated);
+
+        // --- LOG ACTIVITY ---
+        ActivityLogger::log(
+            'Tambah Buku',
+            $book,
+            'Judul: ' . $book->judul
+        );
 
         return redirect()->route('books.index')->with('success', 'Buku berhasil ditambahkan.');
     }
@@ -88,6 +96,13 @@ class BookController extends Controller
 
         $book->update($validated);
 
+        // --- LOG ACTIVITY ---
+        ActivityLogger::log(
+            'Update Buku',
+            $book,
+            'Judul: ' . $book->judul
+        );
+
         return redirect()->route('books.index')->with('success', 'Buku berhasil diperbarui.');
     }
 
@@ -97,6 +112,14 @@ class BookController extends Controller
     public function destroy(Book $book)
     {
         $book->delete();
+
+        // --- LOG ACTIVITY ---
+        ActivityLogger::log(
+            'Hapus Buku',
+            $book,
+            'Judul: ' . $book->judul
+        );
+
         return redirect()->route('books.index')->with('success', 'Buku berhasil dihapus.');
     }
 }

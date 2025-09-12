@@ -13,10 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('member', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+       Schema::create('members', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+    $table->string('kelas')->nullable();
+    $table->string('jurusan')->nullable();
+    $table->timestamps();
+});
+
     }
 
     /**

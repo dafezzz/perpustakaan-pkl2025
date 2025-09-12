@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rak;
+use App\Helpers\ActivityLogger; // <-- import helper
 use Illuminate\Http\Request;
 
 class RakController extends Controller
@@ -25,7 +26,15 @@ class RakController extends Controller
             'nama_rak' => 'required',
         ]);
 
-        Rak::create($request->all());
+        $rak = Rak::create($request->all());
+
+        // --- LOG ACTIVITY ---
+        ActivityLogger::log(
+            'Tambah Rak',
+            $rak,
+            'Rak: ' . $rak->nama_rak
+        );
+
         return redirect()->route('rak.index')->with('success', 'Rak berhasil ditambahkan.');
     }
 
@@ -42,12 +51,28 @@ class RakController extends Controller
         ]);
 
         $rak->update($request->all());
+
+        // --- LOG ACTIVITY ---
+        ActivityLogger::log(
+            'Update Rak',
+            $rak,
+            'Rak: ' . $rak->nama_rak
+        );
+
         return redirect()->route('rak.index')->with('success', 'Rak berhasil diperbarui.');
     }
 
     public function destroy(Rak $rak)
     {
         $rak->delete();
+
+        // --- LOG ACTIVITY ---
+        ActivityLogger::log(
+            'Hapus Rak',
+            $rak,
+            'Rak: ' . $rak->nama_rak
+        );
+
         return redirect()->route('rak.index')->with('success', 'Rak berhasil dihapus.');
     }
 }

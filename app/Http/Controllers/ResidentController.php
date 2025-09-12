@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Resident;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -10,7 +11,7 @@ class ResidentController extends Controller
 {
     public function index()
     {
-        $residents = User::where('role', 'resident')->get();
+        $residents = Resident::with('user')->get();
         return view('pages.resident.index', compact('residents'));
     }
 
@@ -25,75 +26,106 @@ class ResidentController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
+            'alamat'   => 'nullable|string|max:255',
+            'telp'     => 'nullable|string|max:20',
             'cover'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $coverName = null;
-        if ($request->hasFile('cover')) {
-            $coverFile = $request->file('cover');
-            $coverName = time() . '_' . $coverFile->getClientOriginalName();
-            $coverFile->move(public_path('cover_users'), $coverName);
+        try {
+            $coverName = null;
+
+            // Upload cover ke storage/app/public/cover_users
+            if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
+                $file = $request->file('cover');
+                $coverName = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+                $file->storeAs('cover_users', $coverName, 'public');
+            }
+
+            // Simpan user
+            $user = User::create([
+                'name'     => $validated['name'],
+                'email'    => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role'     => 'resident',
+            ]);
+
+            // Simpan resident
+            Resident::create([
+                'user_id' => $user->id,
+                'alamat'  => $validated['alamat'] ?? null,
+                'telp'    => $validated['telp'] ?? null,
+                'cover'   => $coverName,
+            ]);
+
+            return redirect()->route('resident.index')->with('success', 'Resident berhasil ditambahkan.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role'     => 'resident',
-            'cover'    => $coverName,
-        ]);
-
-        return redirect()->route('resident.index')->with('success', 'Admin berhasil ditambahkan.');
     }
 
-    public function edit(User $resident)
+    public function edit(Resident $resident)
     {
         return view('pages.resident.edit', compact('resident'));
     }
 
-    public function update(Request $request, User $resident)
+    public function update(Request $request, Resident $resident)
     {
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email,' . $resident->id,
+            'email'    => 'required|email|unique:users,email,' . $resident->user_id,
             'password' => 'nullable|string|min:6',
+            'alamat'   => 'nullable|string|max:255',
+            'telp'     => 'nullable|string|max:20',
             'cover'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // password opsional
-        if ($request->filled('password')) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
-        }
+        try {
+            // Update user
+            $userData = [
+                'name'  => $validated['name'],
+                'email' => $validated['email'],
+            ];
+            if (!empty($validated['password'])) {
+                $userData['password'] = Hash::make($validated['password']);
+            }
+            $resident->user->update($userData);
 
-        // cover opsional
-        if ($request->hasFile('cover')) {
-            // hapus file lama kalau ada
-            if ($resident->cover && file_exists(public_path('cover_users/' . $resident->cover))) {
-                unlink(public_path('cover_users/' . $resident->cover));
+            // Update cover
+            if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
+                if ($resident->cover && file_exists(storage_path('app/public/'.$resident->cover))) {
+                    unlink(storage_path('app/public/'.$resident->cover));
+                }
+                $file = $request->file('cover');
+                $coverName = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+                $file->storeAs('cover_users', $coverName, 'public');
+                $resident->cover = $coverName;
             }
 
-            $coverFile = $request->file('cover');
-            $coverName = time() . '_' . $coverFile->getClientOriginalName();
-            $coverFile->move(public_path('cover_users'), $coverName);
-            $validated['cover'] = $coverName;
+            // Update detail resident
+            $resident->alamat = $validated['alamat'] ?? null;
+            $resident->telp   = $validated['telp'] ?? null;
+            $resident->save();
+
+            return redirect()->route('resident.index')->with('success', 'Resident berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        $resident->update($validated);
-
-        return redirect()->route('resident.index')->with('success', 'Admin berhasil diperbarui.');
     }
 
-    public function destroy(User $resident)
+    public function destroy(Resident $resident)
     {
         try {
-            if ($resident->cover && file_exists(public_path('cover_users/' . $resident->cover))) {
-                unlink(public_path('cover_users/' . $resident->cover));
+            if ($resident->cover && file_exists(storage_path('app/public/'.$resident->cover))) {
+                unlink(storage_path('app/public/'.$resident->cover));
             }
 
+            $resident->user->delete();
             $resident->delete();
-            return redirect()->route('resident.index')->with('success', 'Admin berhasil dihapus.');
+
+            return redirect()->route('resident.index')->with('success', 'Resident berhasil dihapus.');
+
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal hapus: ' . $e->getMessage());
         }

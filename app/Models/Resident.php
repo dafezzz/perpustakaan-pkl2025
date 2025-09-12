@@ -2,24 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 
-class Resident extends Authenticatable
+class Resident extends Model
 {
-    use Notifiable;
-
     protected $table = 'residents';
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'cover',
-    ];
+    protected $fillable = ['user_id','alamat','telp','cover'];
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
