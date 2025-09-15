@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Resident;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ResidentController extends Controller
 {
@@ -34,19 +35,17 @@ class ResidentController extends Controller
         try {
             $coverName = null;
 
-            // Upload cover ke storage/app/public/cover_users
+            // Upload cover jika ada
             if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
-                $file = $request->file('cover');
-                $coverName = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-                $file->storeAs('cover_users', $coverName, 'public');
+                $coverName = $request->file('cover')->store('cover_users', 'public');
             }
 
             // Simpan user
             $user = User::create([
-                'name'     => $validated['name'],
-                'email'    => $validated['email'],
+                'name' => $validated['name'],
+                'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
-                'role'     => 'resident',
+                'role' => 'resident',
             ]);
 
             // Simpan resident
@@ -58,7 +57,6 @@ class ResidentController extends Controller
             ]);
 
             return redirect()->route('resident.index')->with('success', 'Resident berhasil ditambahkan.');
-
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
@@ -83,7 +81,7 @@ class ResidentController extends Controller
         try {
             // Update user
             $userData = [
-                'name'  => $validated['name'],
+                'name' => $validated['name'],
                 'email' => $validated['email'],
             ];
             if (!empty($validated['password'])) {
@@ -93,22 +91,20 @@ class ResidentController extends Controller
 
             // Update cover
             if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
-                if ($resident->cover && file_exists(storage_path('app/public/'.$resident->cover))) {
-                    unlink(storage_path('app/public/'.$resident->cover));
+                // Hapus cover lama jika ada
+                if ($resident->cover && Storage::disk('public')->exists($resident->cover)) {
+                    Storage::disk('public')->delete($resident->cover);
                 }
-                $file = $request->file('cover');
-                $coverName = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-                $file->storeAs('cover_users', $coverName, 'public');
+                $coverName = $request->file('cover')->store('cover_users', 'public');
                 $resident->cover = $coverName;
             }
 
-            // Update detail resident
+            // Update alamat & telp
             $resident->alamat = $validated['alamat'] ?? null;
             $resident->telp   = $validated['telp'] ?? null;
             $resident->save();
 
             return redirect()->route('resident.index')->with('success', 'Resident berhasil diperbarui.');
-
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
@@ -117,15 +113,14 @@ class ResidentController extends Controller
     public function destroy(Resident $resident)
     {
         try {
-            if ($resident->cover && file_exists(storage_path('app/public/'.$resident->cover))) {
-                unlink(storage_path('app/public/'.$resident->cover));
+            if ($resident->cover && Storage::disk('public')->exists($resident->cover)) {
+                Storage::disk('public')->delete($resident->cover);
             }
 
             $resident->user->delete();
             $resident->delete();
 
             return redirect()->route('resident.index')->with('success', 'Resident berhasil dihapus.');
-
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal hapus: ' . $e->getMessage());
         }

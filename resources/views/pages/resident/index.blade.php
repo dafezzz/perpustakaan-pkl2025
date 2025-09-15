@@ -30,26 +30,29 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>
-    @if($item->cover)
-        <img src="{{ asset('storage/'.$item->cover) }}" width="60" class="rounded">
-    @else
-        <span class="text-muted">-</span>
-    @endif
-</td>
-                                <td>{{ $item->name }}</td>
-                                <td>{{ $item->email }}</td>
-                                <td>{{ $item->telepon ?? '-' }}</td>
+                                    @if($item->cover)
+                                        <img src="{{ asset('storage/'.$item->cover) }}" width="60" class="rounded">
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>{{ $item->name ?? '-' }}</td>
+                                <td>{{ $item->email ?? '-' }}</td>
+                                <td>{{ $item->telp ?? '-' }}</td>
                                 <td>{{ $item->alamat ?? '-' }}</td>
                                 <td>
                                     <a href="{{ route('resident.edit', $item->id) }}" class="btn btn-sm btn-warning">Edit</a>
                                     <form action="{{ route('resident.destroy', $item->id) }}" method="post" class="d-inline">
-                                        @csrf @method('DELETE')
+                                        @csrf
+                                        @method('DELETE')
                                         <button onclick="return confirm('Yakin hapus?')" class="btn btn-sm btn-danger">Hapus</button>
                                     </form>
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="text-center">Tidak ada data.</td></tr>
+                            <tr>
+                                <td colspan="7" class="text-center">Tidak ada data.</td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
